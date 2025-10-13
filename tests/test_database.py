@@ -33,6 +33,18 @@ class TestDatabaseConnection:
         session.close()
         print("✓ 数据库会话创建成功")
 
+    def test_print_tables_schema(self):
+        db_manager = DatabaseManager()
+        print("\n✓ 数据库表结构信息\n")
+        for t in db_manager.get_tables_schemas():
+            print(f"📘 表名: {t['table_name']}")
+            print(f"📝 注释: {t['table_desc'] or '-'}")
+            print("  列信息:")
+            for col in t["columns"]:
+                print(
+                    f"    - {col['column_name']:20} {col['data_type']:25} 默认值: {col['column_default'] or '-':5}  注释: {col['column_comment'] or '-':20}")
+            print("-" * 80)
+
     def test_execute_sql(self):
         db_manager = DatabaseManager()
         result = db_manager.execute_sql("""SELECT category FROM dim_category where category='即饮茶';""")

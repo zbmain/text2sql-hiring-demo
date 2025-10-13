@@ -38,6 +38,46 @@ class DatabaseManager:
         session_factory = self.get_session_factory()
         return session_factory()
 
+    def get_tables_schemas(self) -> List[Dict[str, Any]]:
+        sql = """
+        SELECT
+            c.relname AS table_name,
+            obj_description(c.oid) AS table_comment,
+            a.attname AS column_name,
+            pg_catalog.format_type(a.atttypid, a.atttypmod) AS data_type,
+            pg_get_expr(ad.adbin, ad.adrelid) AS column_default,
+            col_description(a.attrelid, a.attnum) AS column_comment
+        FROM pg_class c
+        JOIN pg_namespace n ON n.oid = c.relnamespace
+        JOIN pg_attribute a ON a.attrelid = c.oid
+        LEFT JOIN pg_attrdef ad ON a.attrelid = ad.adrelid AND a.attnum = ad.adnum
+        WHERE c.relkind = 'r'
+          AND n.nspname = 'public'
+          AND a.attnum > 0
+          AND NOT a.attisdropped
+        ORDER BY c.relname, a.attnum;
+        """
+
+        rows = self.execute_sql(sql)
+        tables: Dict[str, Dict[str, Any]] = {}
+
+        for row in rows:
+            table_name = row["table_name"]
+            if table_name not in tables:
+                tables[table_name] = {
+                    "table_name": table_name,
+                    "table_desc": row["table_comment"],
+                    "columns": []
+                }
+            tables[table_name]["columns"].append({
+                "column_name": row["column_name"],
+                "data_type": row["data_type"],
+                "column_default": row["column_default"],
+                "column_comment": row["column_comment"],
+            })
+
+        return list(tables.values())
+
     def execute_sql(
             self,
             sql: str,
