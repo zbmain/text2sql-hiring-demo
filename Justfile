@@ -5,7 +5,7 @@ test:
     uv run pytest
 
 start:
-    uv run python -m src.main
+    uv run start
 
 down:
     docker compose -f docker/docker-compose.yml down
