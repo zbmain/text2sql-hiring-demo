@@ -4,10 +4,12 @@
 
 ### 1.1 构建数据库
 
-#### 1.1.1 Install Just
+#### 1.1.1 运行依赖
 
-* macOS ```brew install just```
-* Ubuntu ```apt install just```
+* Justfile: https://github.com/casey/just?tab=readme-ov-file#packages
+* uv: https://github.com/astral-sh/uv
+
+> 请先安装依以上运行依赖
 
 #### 1.1.2 启动数据库
 
